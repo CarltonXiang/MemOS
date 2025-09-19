@@ -1,14 +1,26 @@
 import uuid
 
-from typing import Generic, Literal, TypeVar
+from typing import Generic, Literal, TypeAlias, TypeVar
 
 from pydantic import BaseModel, Field
-
-# Import message types from core types module
-from memos.types import MessageDict
+from typing_extensions import TypedDict
 
 
 T = TypeVar("T")
+
+
+# ─── Message Types ──────────────────────────────────────────────────────────────
+
+# Chat message roles
+MessageRole: TypeAlias = Literal["user", "assistant", "system"]
+
+
+# Message structure
+class MessageDict(TypedDict):
+    """Typed dictionary for chat message dictionaries."""
+
+    role: MessageRole
+    content: str
 
 
 class BaseRequest(BaseModel):
@@ -74,7 +86,6 @@ class ChatRequest(BaseRequest):
     history: list[MessageDict] | None = Field(None, description="Chat history")
     internet_search: bool = Field(True, description="Whether to use internet search")
     moscube: bool = Field(False, description="Whether to use MemOSCube")
-    session_id: str | None = Field(None, description="Session ID for soft-filtering memories")
 
 
 class ChatCompleteRequest(BaseRequest):
@@ -89,7 +100,6 @@ class ChatCompleteRequest(BaseRequest):
     base_prompt: str | None = Field(None, description="Base prompt to use for chat")
     top_k: int = Field(10, description="Number of results to return")
     threshold: float = Field(0.5, description="Threshold for filtering references")
-    session_id: str | None = Field(None, description="Session ID for soft-filtering memories")
 
 
 class UserCreate(BaseRequest):
@@ -151,7 +161,6 @@ class MemoryCreateRequest(BaseRequest):
     mem_cube_id: str | None = Field(None, description="Cube ID")
     source: str | None = Field(None, description="Source of the memory")
     user_profile: bool = Field(False, description="User profile memory")
-    session_id: str | None = Field(None, description="Session id")
 
 
 class SearchRequest(BaseRequest):
@@ -161,7 +170,6 @@ class SearchRequest(BaseRequest):
     query: str = Field(..., description="Search query")
     mem_cube_id: str | None = Field(None, description="Cube ID to search in")
     top_k: int = Field(10, description="Number of results to return")
-    session_id: str | None = Field(None, description="Session ID for soft-filtering memories")
 
 
 class SuggestionRequest(BaseRequest):
@@ -170,3 +178,104 @@ class SuggestionRequest(BaseRequest):
     user_id: str = Field(..., description="User ID")
     language: Literal["zh", "en"] = Field("zh", description="Language for suggestions")
     message: list[MessageDict] | None = Field(None, description="List of messages to store.")
+
+
+# ─── MemOS Client Response Models ──────────────────────────────────────────────
+
+
+class MessageDetail(BaseModel):
+    """Individual message detail model based on actual API response."""
+
+    role: str = Field(..., description="Message role (user/assistant)")
+    content: str = Field(..., description="Message content")
+    create_time: int | None = Field(
+        None, alias="createTime", description="Message creation timestamp"
+    )
+    update_time: int | None = Field(
+        None, alias="updateTime", description="Message update timestamp"
+    )
+
+
+class MemoryDetail(BaseModel):
+    """Individual memory detail model based on actual API response."""
+
+    id: str = Field(..., description="Memory ID")
+    memory_key: str = Field(..., alias="memoryKey", description="Memory key/title")
+    memory_value: str = Field(..., alias="memoryValue", description="Memory content")
+    memory_type: str = Field(
+        ..., alias="memoryType", description="Memory type (e.g., WorkingMemory)"
+    )
+    memory_time: int | None = Field(None, alias="memoryTime", description="Memory timestamp")
+    conversation_id: str = Field(..., alias="conversationId", description="Conversation ID")
+    status: str = Field(..., description="Memory status (e.g., activated)")
+    confidence: float = Field(..., description="Memory confidence score")
+    tags: list[str] = Field(default_factory=list, description="Memory tags")
+    update_time: int = Field(..., alias="updateTime", description="Last update timestamp")
+    relativity: float = Field(..., description="Memory relativity/similarity score")
+
+
+class GetMessagesData(BaseModel):
+    """Data model for get messages response based on actual API."""
+
+    message_detail_list: list[MessageDetail] = Field(
+        default_factory=list, alias="messageDetailList", description="List of message details"
+    )
+
+
+class SearchMemoryData(BaseModel):
+    """Data model for search memory response based on actual API."""
+
+    memory_detail_list: list[MemoryDetail] = Field(
+        default_factory=list, alias="memoryDetailList", description="List of memory details"
+    )
+    message_detail_list: list[MessageDetail] | None = Field(
+        None, alias="messageDetailList", description="List of message details (usually None)"
+    )
+
+
+class AddMessageData(BaseModel):
+    """Data model for add message response based on actual API."""
+
+    success: bool = Field(..., description="Operation success status")
+
+
+# ─── MemOS Response Models (Similar to OpenAI ChatCompletion) ──────────────────
+
+
+class MemOSGetMessagesResponse(BaseModel):
+    """Response model for get messages operation based on actual API."""
+
+    code: int = Field(..., description="Response status code")
+    message: str = Field(..., description="Response message")
+    data: GetMessagesData = Field(..., description="Messages data")
+
+    @property
+    def messages(self) -> list[MessageDetail]:
+        """Convenient access to message list."""
+        return self.data.message_detail_list
+
+
+class MemOSSearchResponse(BaseModel):
+    """Response model for search memory operation based on actual API."""
+
+    code: int = Field(..., description="Response status code")
+    message: str = Field(..., description="Response message")
+    data: SearchMemoryData = Field(..., description="Search results data")
+
+    @property
+    def memories(self) -> list[MemoryDetail]:
+        """Convenient access to memory list."""
+        return self.data.memory_detail_list
+
+
+class MemOSAddResponse(BaseModel):
+    """Response model for add message operation based on actual API."""
+
+    code: int = Field(..., description="Response status code")
+    message: str = Field(..., description="Response message")
+    data: AddMessageData = Field(..., description="Add operation data")
+
+    @property
+    def success(self) -> bool:
+        """Convenient access to success status."""
+        return self.data.success
