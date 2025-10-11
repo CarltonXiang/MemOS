@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 MAX_RETRY_COUNT = 3
 
 test = "1245"
-
+test2 = "1245"
 
 class MemOSClient:
     """MemOS API client"""
