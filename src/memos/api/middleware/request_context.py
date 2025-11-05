@@ -36,7 +36,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
     3. Ensures the context is available throughout the request lifecycle
     """
 
-    def __init__(self, app, source: str | None = None):
+    def __init__(self, app, source: str = "api"):
         """
         Initialize the middleware.
 
@@ -45,7 +45,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             source: Source identifier (e.g., 'product' or 'server') to distinguish request origin
         """
         super().__init__(app)
-        self.source = source or "api"
+        self.source = source
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         # Extract or generate trace_id
