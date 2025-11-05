@@ -6,6 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from memos.api.exceptions import APIExceptionHandler
 from memos.api.routers.server_router import router as server_router
 
+from memos.api.middleware.request_context import RequestContextMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -17,7 +18,7 @@ app = FastAPI(
     version="1.0.1",
 )
 
-# app.add_middleware(RequestContextMiddleware, source="server_api")
+app.add_middleware(RequestContextMiddleware, source="server_api")
 # Include routers
 app.include_router(server_router)
 
