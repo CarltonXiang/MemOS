@@ -73,8 +73,9 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         )
 
         # Process the request
+        response = await call_next(request)
+
         try:
-            response = await call_next(request)
             end_time = time.time()
 
             if not response:
@@ -97,6 +98,5 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             logger.error(
                 f"Request Exception Error: source: {self.source}, path: {request.url.path}, error: {e}, cost: {(end_time - start_time) * 1000:.2f}ms"
             )
-            raise e
 
         return response
