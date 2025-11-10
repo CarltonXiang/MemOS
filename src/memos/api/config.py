@@ -200,6 +200,7 @@ class NacosConfigManager:
         ak = os.getenv("AK")
         sk = os.getenv("SK")
 
+        print(f"server_addr: {server_addr}, data_id: {data_id}, group: {group}, namespace: {namespace}, ak: {ak}, sk: {sk}   ")
         logger.info(
             f"NACOS_SERVER_ADDR: {server_addr}, NACOS_DATA_ID: {data_id}, NACOS_GROUP: {group}, NACOS_NAMESPACE: {namespace}, AK: {ak}, SK: {sk}"
         )
