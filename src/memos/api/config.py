@@ -200,7 +200,9 @@ class NacosConfigManager:
         ak = os.getenv("AK")
         sk = os.getenv("SK")
 
-        logger.info(f'NACOS_SERVER_ADDR: {server_addr}, NACOS_DATA_ID: {data_id}, NACOS_GROUP: {group}, NACOS_NAMESPACE: {namespace}, AK: {ak}, SK: {sk}')
+        logger.info(
+            f"NACOS_SERVER_ADDR: {server_addr}, NACOS_DATA_ID: {data_id}, NACOS_GROUP: {group}, NACOS_NAMESPACE: {namespace}, AK: {ak}, SK: {sk}"
+        )
         if not (server_addr or data_id or ak or sk):
             logger.warning("❌ missing NACOS_SERVER_ADDR / AK / SK / DATA_ID")
             return
