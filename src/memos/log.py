@@ -187,7 +187,7 @@ LOGGING_CONFIG = {
     },
     "handlers": {
         "console": {
-            "level": selected_log_level,
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "stream": stdout,
             "formatter": "no_datetime",
