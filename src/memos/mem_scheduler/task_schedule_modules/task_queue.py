@@ -112,7 +112,7 @@ class ScheduleTaskQueue:
             )
 
             messages.extend(fetched)
-            
+
         return messages
 
     def clear(self):
