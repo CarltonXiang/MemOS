@@ -112,10 +112,7 @@ class ScheduleTaskQueue:
             )
 
             messages.extend(fetched)
-        if len(messages) > 0:
-            logger.debug(
-                f"Fetched {len(messages)} messages across users with per-user batch_size={batch_size}"
-            )
+            
         return messages
 
     def clear(self):
