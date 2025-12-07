@@ -61,6 +61,14 @@ class ContextFilter(logging.Filter):
         return True
 
 
+class FileLevelFilter(logging.Filter):
+    """Filter out DEBUG and WARNING level logs from file handler."""
+
+    def filter(self, record):
+        # True = record will be logged; False = record will be skipped
+        return record.levelno not in (logging.DEBUG, logging.WARNING)
+
+
 class CustomLoggerRequestHandler(logging.Handler):
     _instance = None
     _lock = threading.Lock()
@@ -186,6 +194,7 @@ LOGGING_CONFIG = {
     "filters": {
         "package_tree_filter": {"()": "logging.Filter", "name": settings.LOG_FILTER_TREE_PREFIX},
         "context_filter": {"()": "memos.log.ContextFilter"},
+        "file_level_filter": {"()": "memos.log.FileLevelFilter"},
     },
     "handlers": {
         "console": {
@@ -203,7 +212,7 @@ LOGGING_CONFIG = {
             "backupCount": 3,
             "filename": _setup_logfile(),
             "formatter": "standard",
-            "filters": ["context_filter"],
+            "filters": ["context_filter", "file_level_filter"],
         },
         "custom_logger": {
             "level": "INFO",
