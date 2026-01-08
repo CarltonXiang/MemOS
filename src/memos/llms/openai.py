@@ -54,7 +54,7 @@ class OpenAILLM(BaseLLM):
 
         cost_time = time.perf_counter() - start_time
         logger.info(
-            f"Request body: {request_body}, Response from OpenAI: {response.model_dump_json()}, Cost time: {cost_time}"
+            f"[openai_model_name={request_body['model']}] Response from OpenAI: {response.model_dump_json()}, cost_time: {cost_time}"
         )
 
         tool_calls = getattr(response.choices[0].message, "tool_calls", None)
