@@ -25,7 +25,7 @@ from memos.log import get_logger
 
 logger = get_logger(__name__)
 
-MAX_RETRY_COUNT = 3
+MAX_RETRY_COUNT = 4
 
 
 class MemOSClient:
